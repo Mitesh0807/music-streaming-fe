@@ -1,5 +1,107 @@
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
+import { DragHandleButton } from "@atlaskit/pragmatic-drag-and-drop-react-accessibility/drag-handle-button";
+import { DropIndicator } from "@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box";
+import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
+import {
+  draggable,
+  dropTargetForElements,
+  monitorForElements,
+} from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { reorder } from "@atlaskit/pragmatic-drag-and-drop/reorder";
+import {
+  attachClosestEdge,
+  extractClosestEdge,
+} from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
+import { getReorderDestinationIndex } from "@atlaskit/pragmatic-drag-and-drop-hitbox/util/get-reorder-destination-index";
+
+const TrackListContext = createContext(null);
+
+const useTrackListContext = () => {
+  const context = useContext(TrackListContext);
+  if (!context) {
+    throw new Error(
+      "useTrackListContext must be used within a TrackListProvider"
+    );
+  }
+  return context;
+};
+
+const TrackItem = ({ track, index }) => {
+  const { registerItem, instanceId } = useTrackListContext();
+  const ref = useRef(null);
+  const [closestEdge, setClosestEdge] = useState(null);
+  const dragHandleRef = useRef(null);
+
+  useEffect(() => {
+    const element = ref.current;
+    const dragHandle = dragHandleRef.current;
+    if (!element || !dragHandle) return;
+
+    const data = { track, index, instanceId };
+
+    return combine(
+      registerItem({ trackId: track.title, element }),
+      draggable({
+        element: dragHandle,
+        getInitialData: () => data,
+      }),
+      dropTargetForElements({
+        element,
+        canDrop: ({ source }) => source.data.instanceId === instanceId,
+        getData: ({ input }) =>
+          attachClosestEdge(data, {
+            element,
+            input,
+            allowedEdges: ["top", "bottom"],
+          }),
+        onDrag: ({ self, source }) => {
+          const isSource = source.element === element;
+          if (isSource) {
+            setClosestEdge(null);
+            return;
+          }
+          setClosestEdge(extractClosestEdge(self.data));
+        },
+        onDragLeave: () => setClosestEdge(null),
+        onDrop: () => setClosestEdge(null),
+      })
+    );
+  }, [track, index, instanceId, registerItem]);
+
+  return (
+    <tr ref={ref} className="hover:bg-white/10 transition-colors">
+      <td className="py-3">
+        <DragHandleButton
+          ref={dragHandleRef}
+          label={`Reorder ${track.title}`}
+        />
+      </td>
+      <td className="py-3">{index + 1}</td>
+      <td className="py-3 flex items-center">
+        <img
+          src={`path_to_album_cover_${index + 1}`}
+          alt={track.title}
+          className="w-10 h-10 mr-3"
+        />
+        {track.title}
+      </td>
+      <td className="py-3">{track.plays}</td>
+      <td className="py-3">{track.length}</td>
+      <td className="py-3">{track.album}</td>
+      {closestEdge && <DropIndicator edge={closestEdge} gap="1px" />}
+    </tr>
+  );
+};
+
 const TrackList = () => {
-  const tracks = [
+  const [tracks, setTracks] = useState([
     {
       title: "Billie Jean",
       plays: "1,040,811,084",
@@ -30,153 +132,86 @@ const TrackList = () => {
       length: "3:40",
       album: "Off The Wall",
     },
-  ];
+  ]);
+
+  const [instanceId] = useState(() => Symbol("instance-id"));
+
+  const reorderTrack = useCallback(({ startIndex, finishIndex }) => {
+    setTracks((currentTracks) =>
+      reorder({
+        list: currentTracks,
+        startIndex,
+        finishIndex,
+      })
+    );
+  }, []);
+
+  useEffect(() => {
+    return monitorForElements({
+      canMonitor: ({ source }) => source.data.instanceId === instanceId,
+      onDrop: ({ location, source }) => {
+        const target = location.current.dropTargets[0];
+        if (!target) return;
+
+        const sourceIndex = source.data.index;
+        const targetIndex = tracks.findIndex(
+          (track) => track.title === target.data.track.title
+        );
+        const closestEdgeOfTarget = extractClosestEdge(target.data);
+
+        const finishIndex = getReorderDestinationIndex({
+          startIndex: sourceIndex,
+          indexOfTarget: targetIndex,
+          closestEdgeOfTarget,
+          axis: "vertical",
+        });
+
+        reorderTrack({ startIndex: sourceIndex, finishIndex });
+      },
+    });
+  }, [instanceId, tracks, reorderTrack]);
+
+  const registerItem = useCallback(({ trackId, element }) => {
+    // Implementation of item registration if needed
+    return () => {
+      // Cleanup function
+    };
+  }, []);
+
+  const contextValue = {
+    registerItem,
+    reorderTrack,
+    instanceId,
+  };
 
   return (
-    <div className="flex-1">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-white">Popular</h2>
-        <button className="text-gray-400 hover:text-white">See All</button>
-      </div>
-      <table className="w-full text-left text-gray-300">
-        <thead>
-          <tr className="border-b border-gray-700">
-            <th className="pb-2 font-normal text-gray-400">#</th>
-            <th className="pb-2 font-normal text-gray-400">TITLE</th>
-            <th className="pb-2 font-normal text-gray-400">PLAYING</th>
-            <th className="pb-2 font-normal text-gray-400">TIME</th>
-            <th className="pb-2 font-normal text-gray-400">ALBUM</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tracks.map((track, index) => (
-            <tr key={index} className="hover:bg-white/10 transition-colors">
-              <td className="py-3">{index + 1}</td>
-              <td className="py-3 flex items-center">
-                <img
-                  src={`path_to_album_cover_${index + 1}`}
-                  alt={track.title}
-                  className="w-10 h-10 mr-3"
-                />
-                {track.title}
-              </td>
-              <td className="py-3">{track.plays}</td>
-              <td className="py-3">{track.length}</td>
-              <td className="py-3">{track.album}</td>
+    <TrackListContext.Provider value={contextValue}>
+      <div className="flex-1">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold text-white">Popular</h2>
+          <button className="text-gray-400 hover:text-white">See All</button>
+        </div>
+        <table className="w-full text-left text-gray-300">
+          <thead>
+            <tr className="border-b border-gray-700">
+              <th className="pb-2 font-normal text-gray-400"></th>
+              <th className="pb-2 font-normal text-gray-400">#</th>
+              <th className="pb-2 font-normal text-gray-400">TITLE</th>
+              <th className="pb-2 font-normal text-gray-400">PLAYING</th>
+              <th className="pb-2 font-normal text-gray-400">TIME</th>
+              <th className="pb-2 font-normal text-gray-400">ALBUM</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {tracks.map((track, index) => (
+              <TrackItem key={track.title} track={track} index={index} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </TrackListContext.Provider>
   );
 };
-
-// const Header = () => {
-//   return (
-//     <div className="bg-red-900 text-[#E5DDDD] flex items-center p-6">
-//       <img
-//         src="path_to_michael_jackson_image"
-//         alt="Michael Jackson"
-//         className="w-24 h-24 mr-6"
-//       />
-//       <div>
-//         <div className="text-xl font-bold">Michael Jackson</div>
-//         <div>27,852,501 monthly listeners</div>
-//       </div>
-//       <input
-//         type="text"
-//         placeholder="Michael Jackson"
-//         className="ml-auto p-2 rounded bg-[#2C0000] text-white"
-//       />
-//       <button className="ml-2 p-2 bg-[#2C0000] rounded">
-//         <svg
-//           xmlns="http://www.w3.org/2000/svg"
-//           className="h-5 w-5 text-white"
-//           viewBox="0 0 20 20"
-//           fill="currentColor"
-//         >
-//           <path
-//             fillRule="evenodd"
-//             d="M12.9 14.32a8 8 0 111.414-1.415l4.283 4.284a1 1 0 01-1.415 1.414l-4.283-4.284zm-1.415-5.914a6 6 0 100 12 6 6 0 000-12z"
-//             clipRule="evenodd"
-//           />
-//         </svg>
-//       </button>
-//     </div>
-//   );
-// };
-
-// import {
-//   FaHome,
-//   FaFire,
-//   FaMusic,
-//   FaCompass,
-//   FaCog,
-//   FaSignOutAlt,
-// } from "react-icons/fa";
-
-// const Sidebar = () => {
-//   return (
-//     <div className="bg-[#0E0E0E] text-white h-screen w-1/5 p-6 flex flex-col justify-between">
-//       <div>
-//         <div className="text-3xl font-bold mb-10 flex items-center">
-//           <img
-//             src="path_to_logo"
-//             alt="DreamMusic Logo"
-//             className="h-8 w-8 mr-2"
-//           />
-//           <span className="text-[#E91E1E]">Dream</span>Music
-//         </div>
-//         <nav className="space-y-4">
-//           <a
-//             href="#"
-//             className="flex items-center space-x-3 hover:text-[#E91E1E]"
-//           >
-//             <FaHome />
-//             <span>Home</span>
-//           </a>
-//           <a
-//             href="#"
-//             className="flex items-center space-x-3 hover:text-[#E91E1E]"
-//           >
-//             <FaFire />
-//             <span>Trends</span>
-//           </a>
-//           <a
-//             href="#"
-//             className="flex items-center space-x-3 hover:text-[#E91E1E]"
-//           >
-//             <FaMusic />
-//             <span>Library</span>
-//           </a>
-//           <a
-//             href="#"
-//             className="flex items-center space-x-3 hover:text-[#E91E1E]"
-//           >
-//             <FaCompass />
-//             <span>Discover</span>
-//           </a>
-//         </nav>
-//       </div>
-//       <div className="space-y-4">
-//         <a
-//           href="#"
-//           className="flex items-center space-x-3 hover:text-[#E91E1E]"
-//         >
-//           <FaCog />
-//           <span>Settings</span>
-//         </a>
-//         <a
-//           href="#"
-//           className="flex items-center space-x-3 hover:text-[#E91E1E]"
-//         >
-//           <FaSignOutAlt />
-//           <span>Log Out</span>
-//         </a>
-//       </div>
-//     </div>
-//   );
-// };
 
 import {
   FaHome,
