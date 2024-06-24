@@ -88,6 +88,8 @@ const TrackItem = ({ track, index }: { track: Track; index: number }) => {
             setClosestEdge(null);
             return;
           }
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-expect-error
           setClosestEdge(extractClosestEdge(self.data));
         },
         onDragLeave: () => setClosestEdge(null),
@@ -185,6 +187,8 @@ const TrackList = () => {
 
         const sourceIndex = source.data.index;
         const targetIndex = tracks.findIndex(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-expect-error
           (track: Track) => track.title === target?.data?.track?.title
         );
         const closestEdgeOfTarget = extractClosestEdge(target.data);
