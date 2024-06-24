@@ -3,7 +3,7 @@ import background from "/Background.png";
 
 const MainContent = () => {
   return (
-    <div className="flex-1 p-6">
+    <div>
       <div className="mb-8 relative">
         <img
           src={background}

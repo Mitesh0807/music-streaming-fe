@@ -17,7 +17,7 @@ const MenuItem = ({ icon: Icon, text }: { icon: IconType; text: string }) => (
 
 const Sidebar = () => {
   return (
-    <div className="bg-black text-white h-screen w-1/6 p-6 flex flex-col justify-between">
+    <aside className="w-1/6 bg-black text-white p-6 flex flex-col justify-between">
       <div>
         <div className="text-2xl font-bold mb-10 flex items-center">
           <span className="text-[#FF0000]">Dream</span>Music
@@ -33,7 +33,7 @@ const Sidebar = () => {
         <MenuItem icon={FaCog} text="Settings" />
         <MenuItem icon={FaSignOutAlt} text="Log Out" />
       </div>
-    </div>
+    </aside>
   );
 };
 
