@@ -4,24 +4,33 @@ import {
   updatePlaylist,
   deletePlaylist,
 } from "./playlist.actions";
-import { IPlaylist } from "../../../types";
+import { IPlaylist, ISong } from "../../../types";
 
 interface playlistState {
   playlist: IPlaylist[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  currentlyPlayingTrackId: string | null;
 }
 
 const initialState: playlistState = {
   playlist: [],
   status: "idle",
   error: null,
+  currentlyPlayingTrackId: null,
 };
 
 const playlistSlice = createSlice({
   name: "playlist",
   initialState,
-  reducers: {},
+  reducers: {
+    updatePlaylistOrder: (state, action: PayloadAction<ISong[]>) => {
+      state.playlist[0].songs = action.payload;
+    },
+    setCurrentPlayingTrackId: (state, action: PayloadAction<string | null>) => {
+      state.currentlyPlayingTrackId = action.payload;
+    },
+  },
   extraReducers(builder) {
     builder
       .addCase(fetchplaylist.pending, (state) => {
@@ -59,5 +68,8 @@ const playlistSlice = createSlice({
       );
   },
 });
+
+export const { updatePlaylistOrder, setCurrentPlayingTrackId } =
+  playlistSlice.actions;
 
 export default playlistSlice.reducer;

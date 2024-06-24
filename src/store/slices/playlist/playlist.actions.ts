@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { IPlaylist } from "../../../types";
+import { IPlaylist, ISong } from "../../../types";
 import api from "../../../utils/api";
 
 export const fetchplaylist = createAsyncThunk("playlist/fetchAll", async () => {
