@@ -19,3 +19,24 @@ export type IUser = {
 };
 
 export type SignupPayload = z.infer<typeof SignupSchema>;
+
+export type IPlaylist = {
+  _id: string;
+  name: string;
+  user: string;
+  songs: ISong[];
+  isPublic: boolean;
+  image: string;
+};
+
+export type ISong = {
+  _id: string;
+  title: string;
+  artist: string;
+  album: string;
+  genre: string;
+  duration: number;
+  url: string;
+  image: string;
+  __v: number;
+};

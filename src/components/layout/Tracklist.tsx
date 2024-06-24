@@ -28,6 +28,9 @@ import {
   TableHead,
   TableRow,
 } from "@/components/ui/table";
+import { useAppDispatch, useAppSelector } from "@/store/store";
+import { fetchplaylist } from "@/store/slices/playlist/playlist.actions";
+import { ISong } from "@/types";
 
 interface Track {
   title: string;
@@ -54,7 +57,7 @@ const useTrackListContext = () => {
   return context;
 };
 
-const TrackItem = ({ track, index }: { track: Track; index: number }) => {
+const TrackItem = ({ track, index }: { track: ISong; index: number }) => {
   const { registerItem, instanceId } = useTrackListContext();
   const ref = useRef(null);
   const [closestEdge, setClosestEdge] = useState(null);
@@ -108,15 +111,13 @@ const TrackItem = ({ track, index }: { track: Track; index: number }) => {
       </TableCell>
       <TableCell className="py-3">{index + 1}</TableCell>
       <TableCell className="py-3 flex items-center">
-        <img
-          src={`path_to_album_cover_${index + 1}`}
-          alt={track.title}
-          className="w-10 h-10 mr-3"
-        />
+        <img src={track?.image} alt={track.title} className="w-10 h-10 mr-3" />
         {track.title}
       </TableCell>
-      <TableCell className="py-3">{track.plays}</TableCell>
-      <TableCell className="py-3">{track.length}</TableCell>
+      {/*@ts-expect-error*/}
+      <TableCell className="py-3">{track?.plays ?? 0}</TableCell>
+      {/*@ts-expect-error*/}
+      <TableCell className="py-3">{track?.length ?? 0}</TableCell>
       <TableCell className="py-3">{track.album}</TableCell>
       {closestEdge && <DropIndicator edge={closestEdge} gap="1px" />}
     </TableRow>
@@ -124,6 +125,10 @@ const TrackItem = ({ track, index }: { track: Track; index: number }) => {
 };
 
 const TrackList = () => {
+  const dispatch = useAppDispatch();
+  const playlist =
+    useAppSelector((state) => state?.playlist?.playlist)[0]?.songs || [];
+
   const [tracks, setTracks] = useState([
     {
       title: "Billie Jean",
@@ -179,6 +184,7 @@ const TrackList = () => {
   );
 
   useEffect(() => {
+    dispatch(fetchplaylist());
     return monitorForElements({
       canMonitor: ({ source }) => source.data.instanceId === instanceId,
       onDrop: ({ location, source }) => {
@@ -243,8 +249,8 @@ const TrackList = () => {
             </TableHead>
           </TableRow>
           <TableBody>
-            {tracks.map((track, index) => (
-              <TrackItem key={track.title} track={track} index={index} />
+            {playlist.map((track, index) => (
+              <TrackItem key={track._id} track={track} index={index} />
             ))}
           </TableBody>
         </Table>
