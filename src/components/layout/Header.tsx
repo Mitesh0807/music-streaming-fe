@@ -2,7 +2,7 @@ import { FaSearch } from "react-icons/fa";
 
 const Header = () => {
   return (
-    <header className="bg-[#500000] text-white z-10 p-4">
+    <header className="bg-[#500000] text-white p-4">
       <div className="flex items-center justify-between">
         <nav className="flex space-x-6">
           <a href="#" className="hover:text-[#FF0000]">
