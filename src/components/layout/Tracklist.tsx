@@ -32,7 +32,7 @@ import { useAppDispatch, useAppSelector } from "@/store/store";
 import { fetchplaylist } from "@/store/slices/playlist/playlist.actions";
 import { ISong } from "@/types";
 import {
-  setCurrentPlayingTrackId,
+  setCurrentPlayingSong,
   updatePlaylistOrder,
 } from "@/store/slices/playlist/playlist.slice";
 
@@ -58,7 +58,7 @@ const TrackItem = React.memo(
   ({ track, index }: { track: ISong; index: number }) => {
     const dispatch = useAppDispatch();
     const currentlyPlayingTrackId = useAppSelector(
-      (state) => state.playlist.currentlyPlayingTrackId
+      (state) => state.playlist.setCurrentPlayingSong
     );
 
     const { registerItem, instanceId } = useTrackListContext();
@@ -105,12 +105,15 @@ const TrackItem = React.memo(
     }, [track, index, instanceId, registerItem]);
 
     const handleClick = () => {
-      dispatch(setCurrentPlayingTrackId(track._id));
+      dispatch(setCurrentPlayingSong(track));
     };
 
     return (
       <TableRow
         ref={ref}
+        key={track._id}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
         className={`hover:bg-white/10 transition-colors ${track._id === currentlyPlayingTrackId ? "bg-red-900 text-white" : ""
           }`}
         onClick={handleClick}

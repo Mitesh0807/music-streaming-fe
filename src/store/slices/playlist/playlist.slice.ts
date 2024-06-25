@@ -10,14 +10,16 @@ interface playlistState {
   playlist: IPlaylist[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
-  currentlyPlayingTrackId: string | null;
+  setCurrentPlayingSong: ISong | null;
+  plyingSong: ISong | null;
 }
 
 const initialState: playlistState = {
   playlist: [],
   status: "idle",
   error: null,
-  currentlyPlayingTrackId: null,
+  setCurrentPlayingSong: null,
+  plyingSong: null,
 };
 
 const playlistSlice = createSlice({
@@ -27,8 +29,9 @@ const playlistSlice = createSlice({
     updatePlaylistOrder: (state, action: PayloadAction<ISong[]>) => {
       state.playlist[0].songs = action.payload;
     },
-    setCurrentPlayingTrackId: (state, action: PayloadAction<string | null>) => {
-      state.currentlyPlayingTrackId = action.payload;
+    setCurrentPlayingSong: (state, action: PayloadAction<ISong | null>) => {
+      state.setCurrentPlayingSong = action.payload;
+      state.plyingSong = action.payload;
     },
   },
   extraReducers(builder) {
@@ -69,7 +72,7 @@ const playlistSlice = createSlice({
   },
 });
 
-export const { updatePlaylistOrder, setCurrentPlayingTrackId } =
+export const { updatePlaylistOrder, setCurrentPlayingSong } =
   playlistSlice.actions;
 
 export default playlistSlice.reducer;
