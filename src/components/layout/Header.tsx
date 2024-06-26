@@ -1,4 +1,4 @@
-import { FaSearch } from "react-icons/fa";
+import Component from "./SearchInput";
 
 const Header = () => {
   return (
@@ -18,9 +18,9 @@ const Header = () => {
             Radio
           </a>
         </nav>
-        <button className="p-2">
-          <FaSearch className="h-5 w-5" />
-        </button>
+        <div className="relative">
+          <Component />
+        </div>
       </div>
     </header>
   );

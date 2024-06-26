@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { FaPlay, FaPause, FaStepBackward, FaStepForward } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
-import { Howl } from 'howler';
+import { Howl } from "howler";
 import { useEffect, useState } from "react";
 import { useAppSelector } from "@/store/store";
 
@@ -24,32 +24,31 @@ const NowPlaying = () => {
       src: [song.url],
       html5: true,
       onload: () => {
-        console.log('Audio loaded successfully');
+        console.log("Audio loaded successfully");
         setPlaying(false);
       },
       onplay: () => {
-        console.log('Audio started playing');
+        console.log("Audio started playing");
         setPlaying(true);
       },
       onpause: () => {
-        console.log('Audio paused');
+        console.log("Audio paused");
         setPlaying(false);
       },
       onstop: () => {
-        console.log('Audio stopped');
+        console.log("Audio stopped");
         setPlaying(false);
       },
       onend: () => {
-        console.log('Audio finished playing');
+        console.log("Audio finished playing");
         setPlaying(false);
       },
-      onloaderror: (_id, error) => console.error('Error loading audio:', error),
-      onplayerror: (_id, error) => console.error('Error playing audio:', error),
+      onloaderror: (_id, error) => console.error("Error loading audio:", error),
+      onplayerror: (_id, error) => console.error("Error playing audio:", error),
     });
 
     // @ts-ignore
     setSound(newSound);
-
   }, [song]);
 
   const handlePlaying = () => {
@@ -65,7 +64,7 @@ const NowPlaying = () => {
   };
 
   return (
-    <div className="h-screen bg-[#270909] bg-gradient-to-t from-black/100 to-transparent w-1/6 p-6 flex flex-col justify-between rounded-lg">
+    <div className="hidden md:flex md:flex-col h-screen bg-[#270909] bg-gradient-to-t from-black/100 to-transparent w-1/6 p-6 justify-between rounded-lg">
       <div className="bg-[#300000] text-white p-4 fixed bottom-0 right-0 w-1/6">
         <img src={song?.image} alt="Now Playing" className="w-full rounded" />
         <div className="mt-2">

@@ -95,7 +95,7 @@ const TrackItem = React.memo(
               return;
             }
             //eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error 
+            // @ts-expect-error
             setClosestEdge(extractClosestEdge(self.data));
           },
           onDragLeave: () => setClosestEdge(null),
@@ -114,8 +114,7 @@ const TrackItem = React.memo(
         key={track._id}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
-        className={`hover:bg-white/10 transition-colors ${track._id === currentlyPlayingTrackId ? "bg-red-900 text-white" : ""
-          }`}
+        className={`hover:bg-white/10 transition-colors ${track._id === currentlyPlayingTrackId ? "bg-red-900 text-white" : ""}`}
         onClick={handleClick}
       >
         <TableCell className="py-3">
@@ -186,7 +185,7 @@ const TrackList = () => {
         const sourceIndex = source.data.index;
         const targetIndex = playlist.findIndex(
           //eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error 
+          // @ts-expect-error
           (track: ISong) => track._id === target?.data?.track?._id
         );
         const closestEdgeOfTarget = extractClosestEdge(target.data);
@@ -206,7 +205,7 @@ const TrackList = () => {
   const registerItem = useCallback(
     ({ trackId, element }: { trackId: string; element: HTMLElement }) => {
       console.log(trackId, element);
-      return () => { };
+      return () => {};
     },
     []
   );

@@ -2,6 +2,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
 import MainContent from "./components/layout/MainContent";
 import NowPlaying from "./components/layout/NowPlaying";
+import MobilePlayer from "./components/layout/MobilePlayer";
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <Header />
         <main className="flex-1 overflow-y-auto p-4 bg-[#500000] bg-gradient-to-t from-black/70 to-transparent rounded-lg scrollbar-thin">
           <MainContent />
+          <MobilePlayer />
         </main>
       </div>
       <NowPlaying />
